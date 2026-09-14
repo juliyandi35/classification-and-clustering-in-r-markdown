@@ -1,0 +1,602 @@
+---
+title: 'Unsupervised Machine Learning'
+subtitle: 'Clustering'
+author:
+  - Arie Wahyu Wijayanto
+  - Salwa Rizqina Putri
+  - Firhand Yusuf Kamal
+
+date: "2024-11-03"
+output: 
+  rmdformats::material:
+    highlight: kate
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+![](1.png)
+
+# Introduction
+
+## Introduction to Unsupervised Machine Learning
+
+Unsupervised learning is a type of machine learning in which models are trained using unlabeled dataset and are allowed to act on that data without any supervision.
+
+#### Why use unsupervised learning?
+
+Below are some main reasons which describe the importance of Unsupervised Learning:
+
+1.  Unsupervised learning is helpful for finding useful insights from the data.
+
+2.  Unsupervised learning is much similar as a human learns to think by their own experiences, which makes it closer to the real AI.
+
+3.  Unsupervised learning works on unlabeled and uncategorized data which make unsupervised learning more important.
+
+4.  In real-world, we do not always have input data with the corresponding output so to solve such cases, we need unsupervised learning.
+
+#### Working with unsupervised learning
+
+![](2.png)
+
+Here, we have taken an unlabeled input data, which means it is not categorized and corresponding outputs are also not given. Now, this unlabeled input data is fed to the machine learning model in order to train it. Firstly, it will interpret the raw data to find the hidden patterns from the data and then will apply suitable algorithms such as k-means clustering, Decision tree, etc.
+
+Once it applies the suitable algorithm, the algorithm divides the data objects into groups according to the similarities and difference between the objects.
+
+# Preparation
+
+## Library Used
+
+```{r}
+library(factoextra)  #Mengaplikasikan algoritma clustering kmeans
+library(cluster) #Mengaplikasikan algoritma clustering
+library(ggplot2) #Memvisualisasikan data yang dimiliki
+library(dplyr) #Manipulasi data
+library(broom) #Manipulasi data, statistical objects into tibbles
+library(ggdendro) #Memvisualisasikan dendogram
+library(readxl) #Membaca file excel
+library(fmsb) #Memvisualisasikan radar chart
+library(NbClust) #Optimum number of Cluster
+library(RColorBrewer) #Visualisasi Warna di R
+library(gridExtra)
+```
+
+## Data Used
+
+```{r}
+data <- read_excel("clustering1.xlsx")
+data <- as.data.frame(data)
+rownames(data) <- data$Provinsi
+data <- data[,-1]
+head(data)
+```
+
+## Visualization {.tabset}
+
+### Scatter plot
+
+```{r}
+plot(data, col="blue")
+```
+
+### Box Plot
+
+```{r}
+boxplot(data)
+```
+
+### Box Plot and Histogram (Normalized)
+
+```{r}
+# Normalization Formula X_new  = (x - mean(x)) / StandardDeviation(x)
+data <- scale(data) 
+boxplot(data)
+```
+
+```{r}
+par(mfrow=c(2,2))
+hist(data[,1], col="red", main = "Indeks Pembangunan Manusia")
+hist(data[,2], col="green", main = "Persentase Penduduk Miskin")
+hist(data[,3], col="blue", main = "Persentase Pengangguran Terbuka")
+```
+
+##  {.unnumbered}
+
+# K-means Clustering
+
+## Introduction to K-Means Clustering
+
+Kmeans algorithm is an iterative algorithm that tries to partition the dataset into Kpre-defined distinct non-overlapping subgroups (clusters) where each data point belongs to only one group. The general framework of k-means clustering described bellow:
+
+![](3.png) ![](kmeans.gif)
+
+Note:
+
+1.  Since clustering algorithms including kmeans use distance-based measurements to determine the similarity between data points, it's recommended to standardize the data to have a mean of zero and a standard deviation of one since almost always the features in any dataset would have different units of measurements such as age vs income.
+
+2.  Given kmeans iterative nature and the random initialization of centroids at the start of the algorithm, different initializations may lead to different clusters since kmeans algorithm may stuck in a local optimum and may not converge to global optimum. Therefore, it's recommended to run the algorithm using different initializations of centroids and pick the results of the run that that yielded the lower sum of squared distance.
+
+The distance measurements formula described as follow:
+
+![](5.png)
+
+## Distance {.tabset}
+
+### Euclidian
+
+Function for euclidean distance:
+
+```{r}
+euc <- function(data1, data2){
+  dist <- 0
+  for(i in 1:length(data1)){
+    dist <- dist + (data1[i]-data2[i])^2
+  }
+  return(sqrt(dist))
+}
+```
+
+```{r}
+## sqrt((0-3)^2 + (0-4)^2)
+euc(c(0,0),c(3,4)) 
+```
+
+### Manhattan
+
+Function for Manhattan distance:
+
+```{r}
+man <- function(data1, data2){
+  dist <- 0
+  for(i in 1:length(data1)){
+    dist <- dist + abs(data1[i]-data2[i])
+  }
+  return(dist)
+}
+```
+
+```{r}
+## |0-3| + |0-4|
+man(c(0,0),c(3,4))
+```
+
+## Build K-Means Model {.tabset}
+
+### Manual Coding
+
+#### 1. Choose Random Centroid
+
+```{r}
+centroid <- function(data,k){
+  #set.seed(seed) # agar kerandoman bisa di produksi ulang
+  c <- sample(1:nrow(data),k)
+  return(data[c,])
+}
+```
+
+```{r}
+cen <- centroid(data,3)
+cen
+```
+
+#### 2. Calculate Distance and Reassign the point
+
+```{r}
+distance <- function(data, centroid, distfun){
+  ## 1. buat matrix kosong berukuran jumlah row data x 2
+  res <- matrix(data = NA, nrow = nrow(data), ncol = 2) 
+  
+  ## 2. lakukan looping/perulangan dimana : 
+  for (i in 1:nrow(data)) {
+    ### 2.1. buat matrix berukuran jumlah centroid x 2
+    tmpt <- matrix(data = NA, ncol = 2, nrow = nrow(centroid))
+    for(j in 1:nrow(centroid)){
+      ### 2. untuk matrix di j,1 lakukan penghitungan jarak dari fungsi terpilih di kolom pertama
+      tmpt[j,1] <- as.numeric(distfun(data[i,],centroid[j,]))
+      ### 3. lakukan assign nilai centroid ke berapa di kolom kedua
+      tmpt[j,2] <- j
+    }
+    
+    ### ambil jarak terendah dari suatu centroid
+    res[i,] <- tmpt[tmpt[,1] == min(tmpt[,1]),]
+  }
+  colnames(res) <- c("Distance", "Cluster")
+  return(as.data.frame(cbind(data,res)))
+}
+```
+
+```{r}
+dist<- distance(data, cen, euc)
+```
+
+```{r}
+dist
+```
+
+```{r}
+## agregasi nilai jarak untuk mendapatkan nilai centroid (titik tengah) suatu klaster
+new <- aggregate(dist[,-ncol(dist):-(ncol(dist)-1)], list(dist$Cluster), mean)
+new
+```
+
+#### 3. Interpretation
+
+```{r}
+# Set graphic colors
+coul <- brewer.pal(3, "BuPu")
+colors_border <- coul
+library(scales)
+colors_in <- alpha(coul,0.3)
+
+# If you remove the 2 first lines, the function compute the max and min of each variable with the available data:
+radarchart( new[,-1]  , axistype=0 , maxmin=F,
+      #custom polygon
+      pcol=colors_border , pfcol=colors_in , plwd=4 , plty=1,
+      #custom the grid
+      cglcol="grey", cglty=1, axislabcol="black", cglwd=0.8, 
+      #custom labels
+      vlcex=0.8 
+    )
+
+# Add a legend
+legend(x=0.7, y=1, legend = new$Group.1, bty = "n", pch=20 , col=colors_in , text.col = "grey", cex=1.2, pt.cex=3)
+```
+
+Additional: Color Palet
+
+```{r}
+par(mar=c(1,5,1,1))
+display.brewer.all(colorblindFriendly=TRUE)
+```
+
+#### 5. Centroid Reposition
+
+```{r}
+reposition <- function(data, fun){
+  new <- aggregate(data[,-ncol(data):-(ncol(data)-1)], list(data$Cluster), mean)
+  repos <- distance(data[,-ncol(data):-(ncol(data)-1)], new[,-1], fun)
+  return(repos)
+}
+```
+
+```{r}
+repos <- reposition(dist, euc)
+repos
+```
+
+```{r}
+new <- aggregate(dist[,-ncol(repos):-(ncol(repos)-1)], list(repos$Cluster), mean)
+new
+```
+
+```{r}
+# Set graphic colors
+library(RColorBrewer)
+coul <- brewer.pal(3, "BuPu")
+colors_border <- coul
+library(scales)
+colors_in <- alpha(coul,0.3)
+
+# If you remove the 2 first lines, the function compute the max and min of each variable with the available data:
+radarchart( new[,-1]  , axistype=0 , maxmin=F,
+      #custom polygon
+      pcol=colors_border , pfcol=colors_in , plwd=4 , plty=1,
+      #custom the grid
+      cglcol="grey", cglty=1, axislabcol="black", cglwd=0.8, 
+      #custom labels
+      vlcex=0.8 
+    )
+
+# Add a legend
+legend(x=0.7, y=1, legend = new$Group.1, bty = "n", pch=20 , col=colors_in , text.col = "grey", cex=1.2, pt.cex=3)
+```
+
+#### Looping the process until convergence
+
+```{r}
+k_means <- function(data, k, distfun=euc, max_iter=10){
+  cen <- centroid(data, k)
+  initial <- distance(data, cen, distfun)
+  for(i in 1:max_iter){
+    repo <- reposition(initial, distfun)
+    tmpt <- c()
+    for(k in 1:nrow(initial)){
+      if(initial$Cluster[k] == repo$Cluster[k]){
+        tmpt[k] = 1
+      } else {
+        tmpt[k] = 0
+      }
+    }
+    
+    if(sum(tmpt)==nrow(repo)){
+      break
+    } else {
+      initial <- repo
+    }
+  }
+  return(initial)
+}
+```
+
+```{r}
+set.seed(123)
+result <- k_means(data, 3)
+```
+
+```{r}
+new <- aggregate(result[,-ncol(result):-(ncol(result)-1)], list(result$Cluster), mean)
+new
+# Set graphic colors
+library(RColorBrewer)
+coul <- brewer.pal(4, "RdBu")
+colors_border <- coul
+library(scales)
+colors_in <- alpha(coul, 0.3)
+
+# If you remove the 2 first lines, the function compute the max and min of each variable with the available data:
+radarchart( new[,-1], axistype=0 , maxmin=F,
+    #custom polygon
+    pcol=colors_border, pfcol=colors_in, plwd=4, plty=1,
+    #custom the grid
+    cglcol="grey", cglty=1, axislabcol="black", cglwd=0.8, 
+    #custom labels
+    vlcex=0.8 
+    )
+
+# Add a legend
+legend(x=0.7, y=1, legend = new$Group.1, bty = "n", pch=20, col=colors_in, text.col = "grey", cex=1.2, pt.cex=3)
+```
+
+### Package Coding
+
+```{r}
+
+set.seed(123)
+km_out = kmeans(data, 3)
+```
+
+```{r}
+fviz_cluster(km_out, data = data)
+```
+
+```{r}
+km_out
+```
+
+```{r}
+res <- cbind(data, km_out$cluster)
+```
+
+```{r}
+head(res)
+```
+
+```{r}
+new <- aggregate(res[,-ncol(res)], list(res[,ncol(res)]), mean)
+new
+# Set graphic colors
+library(RColorBrewer)
+coul <- brewer.pal(4, "RdBu")
+colors_border <- coul
+library(scales)
+colors_in <- alpha(coul, 0.3)
+
+# If you remove the 2 first lines, the function compute the max and min of each variable with the available data:
+radarchart( new[,-1], axistype=0 , maxmin=F,
+    #custom polygon
+    pcol=colors_border, pfcol=colors_in, plwd=4, plty=1,
+    #custom the grid
+    cglcol="grey", cglty=1, axislabcol="black", cglwd=0.8, 
+    #custom labels
+    vlcex=0.8 
+    )
+
+# Add a legend
+legend(x=0.7, y=1, legend = new$Group.1, bty = "n", pch=20, col=colors_in, text.col = "grey", cex=1.2, pt.cex=3)
+```
+
+#### Interpretation
+
+| Cluster | IPM  | P0   | PT   |
+|---------|------|------|------|
+| 1       | Mid  | Mid  | Mid  |
+| 2       | High | Low  | High |
+| 3       | Low  | High | Low  |
+
+-   Cluster 1 is a cluster for Medium regions where HDI development, poverty rate (P0) and PT are medium
+
+-   Cluster 2 is a cluster for High regions where HDI development, high PT, and have a low poverty rate
+
+-   Cluster 3 is a cluster for Low regions where HDI development, low PT, and have a high poverty rate.
+
+## Optimum Number of Cluster Size
+
+Determining the number of clusters used can be done objectively with several methods. One of them is the Elbow method. With this method, we can find out the optimum number of clusters to be applied to the data we have.
+
+```{r}
+par(mfrow=c(2,2))
+
+# Elbow method
+fviz_nbclust(data, kmeans, method = "wss") +
+    geom_vline(xintercept = 3, linetype = 2)+
+  labs(subtitle = "Elbow method")
+```
+
+## variation {.tabset}
+
+Theoretically, K-Means can only be performed with numerical data and calculating centroid based on mean is sensitive to outliers. Therefore, there are variations in K-Means, such as K-Medians (numerical data and calculating centroid by median) and K-Medoids
+
+### K-Medians
+
+K-medians is similar to K-Means except that K-Medians uses Median aggregation.
+
+Referensi : [K-Medians Medium](https://medium.com/@achinthamihiran654/k-median-algorithm-09cd6e6c4569) (customized into R)
+
+```{r}
+library(Kmedians)
+```
+
+```{r}
+kmd_out <- Kmedians(data, 3)
+kmd_out
+```
+
+```{r}
+fviz_cluster(
+  list(data = data, cluster = kmd_out$bestresult$cluster),
+  data = data)
+```
+
+### K-Medoids
+
+source : [Medium K-Medoids](https://medium.com/@story.of.stats/k-medoids-partitioning-around-medoids-pam-non-hierarchical-clustering-with-r-9d0af590bbc0){.uri} (customized into R)
+
+K-Medoids or Partitioning Around Method (PAM) is a non-hierarchical cluster method that is a variant of the K-Means method.K-Medoids comes to overcome the weakness of K-Means which is sensitive to outliers because an object with a large value may substantially deviate from the data distribution (Jiawei & Kamber, 2006). </br>
+
+It is based on the use of medoids instead of mean observations belonging to each cluster, with the aim of reducing the sensitivity of the partition with respect to extreme values present in the dataset (Vercellis, 2009). K-Medoids uses a partition clustering method to group a set of n objects into a number of k clusters. This algorithm uses objects in the set of objects that represent a cluster. Objects that represent a cluster are called medoids. </br>
+
+Medoids are objects that are centered in a cluster so they are robust to outliers. Clusters are built by calculating the proximity between medoids and non-medoids objects (Setyawati, 2017).</br>
+
+```{r}
+library(cluster)
+```
+
+```{r}
+pam.res <- pam(data, 3)
+print(pam.res)
+```
+
+```{r}
+fviz_cluster(
+  pam.res,
+  data = data)
+```
+
+# Hierarchical Clustering
+
+## Introduction to Hierarchical Clustering
+
+Hierarchical clustering is an Unsupervised non-linear algorithm in which clusters are created such that they have a hierarchy(or a pre-determined ordering).
+
+#### Types of Hierarchical Clustering
+
+Hierarchical clustering is of two types:
+
+1.  Agglomerative Hierarchical clustering: It starts at individual leaves and successfully merges clusters together. Its a Bottom-up approach.
+
+2.  Divisive Hierarchical clustering: It starts at the root and recursively split the clusters. It's a top-down approach.
+
+#### General Algorithm
+
+In hierarchical clustering, Objects are categorized into a hierarchy similar to a tree-shaped structure which is used to interpret hierarchical clustering models. The algorithm is as follows:
+
+1.  Make each data point in a single point cluster that forms N clusters.
+
+2.  Take the two closest data points and make them one cluster that forms N-1 clusters.
+
+3.  Take the two closest clusters and make them one cluster that forms N-2 clusters.
+
+4.  Repeat steps 3 until there is only one cluster.
+
+The Visualization of the algorithm described as follow:
+
+![](6.png)
+
+Transform it into a dendogram:
+
+![](7.png) ![](hierarch.gif)
+
+![](hierarch_1.gif)
+
+#### Linkage Method
+
+1.  Complete-linkage: the distance between two clusters is defined as the longest distance between two points in each cluster.
+
+![](9.png)
+
+2.  Single-linkage: the distance between two clusters is defined as the shortest distance between two points in each cluster. This linkage may be used to detect high values in your dataset which may be outliers as they will be merged at the end.
+
+![](10.png)
+
+3.  Average-linkage: the distance between two clusters is defined as the average distance between each point in one cluster to every point in the other cluster.
+
+4.  Centroid-linkage: finds the centroid of cluster 1 and centroid of cluster 2, and then calculates the distance between the two before merging.
+
+![](10.png)
+
+5.  Ward-Linkage: Instead of measuring the distance directly, it analyzes the variance of clusters.
+
+![](11.png)
+
+## Package Coding
+
+to implement hierarchical clustering, we use the hclust() function in this example, we will be using the same data we used above the dist() function is used to compute the 50 x 50 inter-observation Euclidean distance matrix.
+
+```{r}
+hc_complete = hclust(dist(data), method = "complete")
+```
+
+If we want to use average or single linkage instead.
+
+```{r}
+hc_average = hclust(dist(data), method = "average")
+hc_single = hclust(dist(data), method = "single")
+```
+
+plot dendograms obtained, the numbers at the bottom of the plot identify each observation.
+
+```{r}
+plot_complete = ggdendrogram(hc_complete, rotate = FALSE, size = 2) + labs(title = "Complete Linkage") 
+plot_average = ggdendrogram(hc_average, rotate = FALSE, size = 2) + labs(title = "Average Linkage")
+plot_single = ggdendrogram(hc_single, rotate = FALSE, size = 2) + labs(title = "Single Linkage")
+
+grid.arrange(plot_complete)
+grid.arrange(plot_average)
+grid.arrange(plot_single)
+```
+
+```{r}
+ggdendrogram(hclust(dist(data), method = "complete"), 
+             rotate = FALSE, 
+             size = 2) + 
+  labs(title = "Complete Linkage with Scaled Features")
+```
+
+Use the cutree() function to determine cluster labels within a given cut of the dendogram.
+
+```{r}
+clust <- cutree(hc_complete, 3)
+```
+
+```{r}
+hc_res <- cbind(data,clust)
+```
+
+```{r}
+head(hc_res)
+```
+
+```{r}
+new <- aggregate(hc_res[,-ncol(hc_res)], list(hc_res[,ncol(hc_res)]), mean)
+new
+# Set graphic colors
+library(RColorBrewer)
+coul <- brewer.pal(4, "RdBu")
+colors_border <- coul
+library(scales)
+colors_in <- alpha(coul, 0.3)
+
+# If you remove the 2 first lines, the function compute the max and min of each variable with the available data:
+radarchart( new[,-1], axistype=0 , maxmin=F,
+    #custom polygon
+    pcol=colors_border, pfcol=colors_in, plwd=4, plty=1,
+    #custom the grid
+    cglcol="grey", cglty=1, axislabcol="black", cglwd=0.8, 
+    #custom labels
+    vlcex=0.8 
+    )
+
+# Add a legend
+legend(x=0.7, y=1, legend = new$Group.1, bty = "n", pch=20, col=colors_in, text.col = "grey", cex=1.2, pt.cex=3)
+```

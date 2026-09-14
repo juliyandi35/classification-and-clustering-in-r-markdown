@@ -1,0 +1,348 @@
+---
+title: "Classification"
+author: "Dimas Ramaditya"
+date: "2206820491"
+output: 
+  rmdformats::material
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# 1. _Methodology_ {.tabset .tabset-fade .tabset-pills}
+
+## Machine Learning Sebagai Solusi Klasifikasi Kelayakan Mahasiswa Penerima Keringanan UKT
+
+Sistem keringanan Uang Kuliah Tunggal (UKT) di perguruan tinggi bertujuan untuk membantu mahasiswa yang berasal dari keluarga kurang mampu agar tetap dapat melanjutkan pendidikan. Proses klasifikasi mahasiswa yang layak mendapatkan keringanan UKT seringkali dihadapkan pada beberapa kendala: 
+
+o Subjektivitas dalam Penilaian: Penilaian kelayakan keringanan UKT seringkali didasarkan pada penilaian subjektif oleh tim penilai, yang dapat dipengaruhi oleh faktor-faktor personal dan bias.
+
+o Kurangnya Transparansi: Proses penilaian yang kurang transparan dapat menimbulkan ketidakpercayaan dan kecurigaan di kalangan mahasiswa.
+
+o Efisiensi dan Efektivitas: Proses manual yang melibatkan banyak dokumen dan verifikasi data dapat memakan waktu lama dan kurang efisien.
+
+o Kesulitan dalam Mengidentifikasi Calon Penerima: Tim penilai mungkin kesulitan dalam mengidentifikasi mahasiswa yang benar-benar membutuhkan keringanan UKT, terutama di tengah banyaknya pengajuan.
+
+![Beban UKT](images/beban UKT.jpeg)
+
+## Manfaat Machine Learning:
+Penerapan machine learning (ML) dalam klasifikasi kelayakan keringanan UKT dapat mengatasi kendala-kendala tersebut dengan menawarkan beberapa manfaat:
+
+o Objektivitas dan Transparansi: Model ML dapat membuat keputusan berdasarkan data yang objektif dan terstruktur, sehingga mengurangi bias dan meningkatkan transparansi dalam proses penilaian.
+
+o Efisiensi dan Efektivitas: Model ML dapat memproses data dengan cepat dan efisien, sehingga mempercepat proses penilaian dan mengurangi beban kerja tim penilai.
+
+o Akurasi Prediksi: Model ML dapat dilatih dengan menggunakan data historis tentang mahasiswa yang telah mendapatkan keringanan UKT, sehingga dapat memprediksi dengan akurat mahasiswa yang berpotensi layak mendapatkan keringanan.
+
+o Identifikasi Calon Penerima yang Lebih Tepat: Model ML dapat membantu mengidentifikasi mahasiswa yang benar-benar membutuhkan keringanan UKT berdasarkan analisis data yang komprehensif.
+
+Dalam penerapan Machine Learning ini, diperlukan beberapa pemahaman terlebih dahulu sebagai berikut
+  
+1. Data Understanding
+  + Mendapatkan pemahaman awal mengenai data yang dibutuhkan untuk memecahkan permasalahan yang diberikan
+  
+Pemeriksaan data merupakan langkah krusial dalam analisis data. Tujuannya adalah untuk mengidentifikasi masalah dalam data sebelum masuk ke tahap pemodelan. Tahap ini layaknya fondasi bagi penelitian, karena menghasilkan ringkasan data dan mengungkap potensi masalah yang perlu ditangani. 
+
+Penting untuk melakukan pemeriksaan data secara cermat dan tidak terburu-buru. Visualisasi data, meskipun bermanfaat, tidak selalu memberikan insight yang mudah dihubungkan dengan ringkasan data. Jika ada masalah yang belum terjawab pada tahap ini, akan berdampak pada tahap pemodelan.
+
+Ringkasan data dapat membantu mengkonfirmasi distribusi data sesuai harapan atau mengungkap penyimpangan tak terduga yang memerlukan penanganan lebih lanjut di tahap persiapan data.
+
+Masalah umum yang sering ditemukan dalam data meliputi nilai yang hilang, outlier, distribusi spike, dan distribusi bimodal. Identifikasi dan pengukuran masalah-masalah ini penting untuk perbaikan pada tahap persiapan data.
+
+3. Data Preparation
+  + Proses pengumpulan, penggabungan, penataan, dan pengorganisasian data
+  
+Tahap persiapan data merupakan langkah penting untuk memperbaiki masalah yang ditemukan dalam data dan mempersiapkan data untuk pemodelan. Tahap ini memerlukan pertimbangan matang dan usaha yang signifikan untuk memastikan data siap digunakan oleh algoritma yang dipilih.
+
+Penting untuk diingat bahwa persiapan data bukanlah proses sekali jalan. Seringkali, masalah baru muncul selama pembangunan model, sehingga diperlukan iterasi dan peninjauan kembali terhadap data.
+
+Pada tahap ini, data dapat dibagi menjadi dua bagian: data pelatihan dan data pengujian. Pembagian ini membantu dalam mengevaluasi kinerja model.
+
+Beberapa kegiatan utama dalam tahap persiapan data meliputi:
+
+**Seleksi Data**: Memilih kasus dan parameter yang akan dianalisis.
+
+**Transformasi**: Melakukan transformasi terhadap parameter tertentu.
+
+**Pembersihan Data**: Membersihkan data agar siap untuk tahap pemodelan.
+
+4. Modelling
+  + Membuat model prediktif atau deskriptif
+
+Tahap pemodelan merupakan inti dari proses data mining, di mana model prediktif atau deskriptif dibangun. Pada tahap ini, metode statistik dan machine learning digunakan untuk menentukan teknik, alat bantu, dan algoritma data mining yang tepat.
+
+Langkah selanjutnya adalah menerapkan teknik dan algoritma yang dipilih pada data dengan bantuan alat bantu yang tersedia. Jika diperlukan penyesuaian data terhadap teknik data mining tertentu, proses dapat kembali ke tahap persiapan data.
+
+Beberapa jenis pemodelan yang umum dilakukan meliputi:
+
+**Klasifikasi**: Mengelompokkan data ke dalam kategori yang telah ditentukan.
+
+**Scoring**: Memberikan skor atau nilai pada data berdasarkan kriteria tertentu.
+
+**Ranking**: Mengurutkan data berdasarkan prioritas atau nilai tertentu.
+
+**Clustering**: Mengelompokkan data berdasarkan kesamaan karakteristik.
+
+**Finding Relation**: Mencari hubungan antara berbagai variabel dalam data.
+
+**Characterization**: Mendeskripsikan karakteristik suatu kelompok data.
+
+5. Evaluation
+  + Melakukan interpretasi terhadap hasil dari data mining
+  
+Tahap evaluasi merupakan tahap penting dalam proses data mining. Pada tahap ini, hasil data mining yang diperoleh dari tahap pemodelan diinterpretasi dan dievaluasi. Tujuannya adalah untuk memastikan bahwa model yang dihasilkan sesuai dengan tujuan yang ditetapkan di awal proses.
+
+Evaluasi dilakukan dengan mengukur kinerja model berdasarkan berbagai metrik yang relevan dengan jenis model dan tujuan analisis. Misalnya, untuk model klasifikasi, metrik seperti akurasi, presisi, recall, dan F1-score dapat digunakan.
+
+Hasil evaluasi digunakan untuk menentukan apakah model yang dihasilkan dapat diterima atau perlu dilakukan penyesuaian. Jika model tidak memenuhi kriteria yang diinginkan, proses dapat kembali ke tahap pemodelan atau persiapan data untuk melakukan perbaikan.
+
+Tahap evaluasi juga membantu dalam memahami pola dan insight yang tersembunyi dalam data, sehingga dapat digunakan untuk pengambilan keputusan yang lebih baik.
+
+# 2. Data Understanding {.tabset .tabset-fade .tabset-pills}
+
+Langkah selanjutnya adalah melihat data yang sedang kita kerjakan. Secara realistis, sebagian besar data yang akan kita dapatkan, bahkan dari pemerintah, dapat memiliki kesalahan, dan penting untuk mengidentifikasi kesalahan ini sebelum menghabiskan waktu untuk menganalisis data. Biasanya, kita harus menjawab pertanyaan-pertanyaan berikut:
+
+o Do we find something wrong in the data?
+
+o Are there ambiguous variables in the dataset?
+
+o Are there variables that should be fixed or removed?
+
+## Load Data and Library
+
+```{r}
+library(caret)
+library(reshape2)
+```
+
+
+```{r}
+data = read.csv(file="klasifikasimhs.csv", header=TRUE) 
+head(data)
+```
+
+**Ubah semua kolom/atribut yang bertipe karakter menjadi faktor**
+Kita perlu mengubah setiap variabel yang bertipe kategorik menjadi faktor terlebih dahulu sebelum melakukan pemodelan
+```{r}
+str(data)
+data$Kelayakan.Keringanan.UKT <- ifelse(data$Kelayakan.Keringanan.UKT == "0","yes","no")
+data$Kelayakan.Keringanan.UKT <- factor(data$Kelayakan.Keringanan.UKT,levels = c("yes","no"))
+data$Tempat.Tinggal <- as.factor(data$Tempat.Tinggal)
+
+head(data)
+```
+
+## Statistika Deskriptif
+
+Pada statistika deskriptif disajikan ringkasan data dengan memperhatikan bagaimana pola persebaran data, nilai minimum, maksimum, rata-rata, standar deviasi, dan apakah data hanya berkumpul dalam rentang kuartil tertentu yang nantinya penting bagi kita untuk melakukan langkah _preprocessing_ selanjutnya.
+
+```{r}
+summary(data)
+```
+Dari hasil ini terlihat bahwa setengah dari responden memiliki tempat tinggal dan setengahnya tidak. Kemudian penghasilan setiap orang tua dari masing-masing mahasiswa bervariasi dari 700.000 rupiah hingga 10.000.000 rupiah per bulannya dengan rata-rata sebesar 5.427.000 rupiah. Lalu, tanggungan dari setiap orang tua pun bervariasi dari 1 hingga 5. Kemudian, jumlah kendaraan yang dimiliki oleh setiap orang tua juga berkisar antara 0 hingga 2 buah kendaraan. Terakhir, terdapat lebih banyak mahasiswa yang tidak layak mendapat keringanan UKT dengan jumlah sebesar 65 orang dan mahasiswa yang layak mendapat keringanan UKT ada sebanyak 35 orang. 
+
+## Visualisasi Data
+
+Visualisasi data adalah proses membuat representasi visual dari data.
+
+Visualisasi data merupakan alat yang ampuh untuk menjelajahi kumpulan data yang besar dan kompleks.
+
+Memvisualisasikan data membantu pengguna untuk memahami pola, tren, hubungan, dan outlier yang tersembunyi di dalam data yang besar dan kompleks.
+
+## Visualisasi Data Numerik
+
+### Parents Income
+
+```{r}
+hist(data$Penghasilan.Orang.Tua, 
+     main="Histogram for Parents Income", 
+     xlab="Parents Income", 
+     border="blue", 
+     col="maroon",
+     las=1, 
+     breaks=20, prob = TRUE)
+boxplot(data$Penghasilan.Orang.Tua, col='maroon',xlab = 'Parents Income', main = 'Box Plot for Parents Income')
+```
+
+### Dependents of Parents
+```{r}
+hist(data$Jumlah.Tanggungan.Orang.Tua, 
+     main="Histogram for Dependents of Parents", 
+     xlab="Dependents of Parents", 
+     border="blue", 
+     col="maroon",
+     las=1, 
+     breaks=50, prob = TRUE)
+boxplot(data$Jumlah.Tanggungan.Orang.Tua, col='maroon',xlab = 'Dependents of Parents', main = 'Box Plot for Dependents of Parents')
+```
+### Number of Vehicles
+```{r}
+hist(data$Jumlah.Tanggungan.Orang.Tua, 
+     main="Histogram for Number of Vehicles", 
+     xlab="Number of Vehicles", 
+     border="blue", 
+     col="maroon",
+     las=1, 
+     breaks=50, prob = TRUE)
+boxplot(data$Kendaraan, col='maroon',xlab = 'Number of Vehicles', main = 'Box Plot for Number of Vehicles')
+```
+
+Di sini kita melihat bahwa hanya ada sedikit nilai ekstrim di variabel Jumlah Kendaraan dan tidak ada nilai ekstrim di variabel numerik lainnya.
+
+## Visualisasi Data Kategorik
+
+Sekarang mari kita lihat variabel kategori dalam dataset.
+
+```{r}
+counts <- table(data$Tempat.Tinggal, data$Kelayakan.Keringanan.UKT)
+barplot(counts, main="Place by UKT Relief Eligibility",
+        xlab="UKT Relief Eligibility", col=c("darkgrey","maroon"),
+        legend = rownames(counts))
+counts2 <- table(data$Kelayakan.Keringanan.UKT,data$Pekerjaan.Orang.Tua)
+barplot(counts2, main="UKT Relief Eligibility by Parent's Job",
+        xlab="Parent's Job", col=c("darkgrey","maroon"),
+        legend = rownames(counts2))
+```
+
+## _Missing Values Check_
+
+Memeriksa data yang hilang
+```{r}
+
+sapply(data,function(x) sum(is.na(x)))
+```
+Dari hasil ini, terlihat bahwa tidak ada _Missing Values_ atau data kosong yang ada di dalam dataset yang kita gunakan. Hal ini menunjukkan bahwa dataset sudah cukup baik untuk digunakan dalam pemodelan.
+
+## Analisis Korelasi
+
+Periksa korelasi antar fitur.
+```{r}
+cordata <- data.matrix(data[,-6])
+cormat <- round(cor(cordata, method = "pearson"),2)
+melted_cormat <- melt(cormat)
+
+
+# Peroleh segitiga bawah dari matriks korelasi
+  get_lower_tri<-function(cormat){
+    cormat[upper.tri(cormat)] <- NA
+    return(cormat)
+  }
+# Peroleh segitiga atas dari matriks korelasi
+  get_upper_tri <- function(cormat){
+    cormat[lower.tri(cormat)]<- NA
+    return(cormat)
+  }
+
+upper_tri <- get_upper_tri(cormat)
+# Atur matriks korelasi
+melted_cormat <- melt(upper_tri, na.rm = TRUE)
+# Buat ggheatmap
+ggheatmap <- ggplot(melted_cormat, aes(Var2, Var1, fill = value))+
+ geom_tile(color = "white")+
+ scale_fill_gradient2(low = "blue", high = "red", mid = "white",
+   midpoint = 0, limit = c(-1,1), space = "Lab",
+    name="Pearson\nCorrelation") +
+  theme_minimal()+ # minimal theme
+ theme(axis.text.x = element_text(angle = 45, vjust = 1,
+    size = 9, hjust = 1))+
+ coord_fixed()
+
+ggheatmap +
+geom_text(aes(Var2, Var1, label = value), color = "black", size = 2) +
+theme(
+  axis.title.x = element_blank(),
+  axis.title.y = element_blank(),
+  panel.grid.major = element_blank(),
+  panel.border = element_blank(),
+  panel.background = element_blank(),
+  axis.ticks = element_blank(),
+  legend.justification = c(1, 0),
+  legend.position = c(0.6, 0.7),
+  legend.direction = "horizontal")+
+  guides(fill = guide_colorbar(barwidth = 7, barheight = 1,
+                title.position = "top", title.hjust = 0.5))
+```
+Dari hasil di atas, kita bisa lihat bahwa tidak ada variabel yang punya korelasi yang tinggi antar satu sama lainnya. Korelasi tinggi dapat dilihat jika 2 buah variabel memiliki nilai korelasi yang mendekati 1 atau mendekati -1 dan juga bisa dilihat dari kepekatan warna di dalam plot tersebut.
+
+# 3. Modelling {.tabset .tabset-fade .tabset-pills}
+Pada bagian 3 ini kita akan gunakan data train untuk membangun model dan data test untuk mengevaluasi model-model kita
+
+## Splitting Data
+Kita akan membagi data terlebih dahulu menjadi data training dan data testing dengan perbandingan 75:25 yaitu 75% data training dan 25% data testing.
+![Splitting Data (image source: https://www.linkedin.com/pulse/why-do-we-need-data-splitting-utkarsh-sharma/)](images/Splitting data.png)
+```{r}
+# Set seed untuk menghasilkan keacakan yang sama
+set.seed(300)
+indxTrain <- createDataPartition(y = data$Kelayakan.Keringanan.UKT,p = 0.75,list = FALSE)
+training <- data[indxTrain,]
+testing <- data[-indxTrain,]
+```
+
+
+Kita akan menggunakan _k-fold cross validation_ untuk melakukan iterasi pada setiap model dengan tujuan untuk mencari parameter terbaik pada setiap model.
+![k-fold Cross Validation (image source: https://www.sharpsightlabs.com/blog/cross-validation-explained/)](images/CV.png)
+```{r}
+# Tentukan cross validation berulang dengan 10 folds/lipatan dan satu pengulangan
+ctrl <- trainControl(method="repeatedcv",repeats = 3) 
+```
+
+## k-Nearest Neighbor
+![kNN (image source:https://www.trivusi.web.id/2022/06/algoritma-knn.html)](images/kNN.png)
+
+
+```{r}
+knnFit <- train(Kelayakan.Keringanan.UKT ~ ., data = training, method = "knn", trControl = ctrl, preProcess = c("center","scale"), tuneLength = 20)
+knnFit
+```
+```{r}
+plot(knnFit)
+```
+Dari hasil ini, ternyata model k-NN dengan k = 11 adalah model dengan akurasi dan nilai Kappa tertinggi. Maka model inilah yang akan digunakan dalam prediksi.
+
+```{r}
+knnPredict <- predict(knnFit,newdata = testing )
+```
+
+Kita bisa melihat kebaikan model dengan melihat Confusion Matrix dari hasil prediksi model tersebut.
+```{r}
+confusionMatrix(knnPredict, testing$Kelayakan.Keringanan.UKT)
+mean(knnPredict == testing$Kelayakan.Keringanan.UKT)
+```
+Dari hasil di atas, terlihat bahwa model k-NN punya akurasi sebesar 91.67% pada data testing dan dapat memprediksi dengan baik di mana 7 kategori yes terprediksi dengan benar dan 1 kategori yes terprediksi dengan salah. Sedangkan 15 kategori no terprediksi dengan benar dan 1 kategori no terprediksi dengan salah.
+
+## Naive Bayes
+
+![Naive Bayes (image source: https://pemrogramanmatlab.com/2023/08/09/memahami-algoritma-naive-bayes-konsep-dan-penerapan/)](images/Naive Bayes.png)
+
+
+```{r}
+NBFit <- train(Kelayakan.Keringanan.UKT ~ ., data = training, method = "naive_bayes", trControl = ctrl, preProcess = c("center","scale"), tuneLength = 20)
+NBFit
+```
+
+```{r}
+plot(NBFit)
+```
+Dari hasil di atas, kita bisa simpulkan bahwa model Naive Bayes dengan kernel punya akurasi yang lebih tinggi dibandingkan model tanpa kernel.
+
+```{r}
+NBPredict <- predict(NBFit,newdata = testing)
+```
+
+Kita bisa melihat kebaikan model dengan melihat Confusion Matrix dari hasil prediksi model tersebut.
+```{r}
+confusionMatrix(NBPredict, testing$Kelayakan.Keringanan.UKT)
+mean(NBPredict == testing$Kelayakan.Keringanan.UKT)
+```
+Dari hasil di atas, terlihat bahwa model Naive Bayes punya akurasi sebesar 91.67% pada data testing dan dapat memprediksi dengan baik di mana 7 kategori yes terprediksi dengan benar dan 1 kategori yes terprediksi dengan salah. Sedangkan 15 kategori no terprediksi dengan benar dan 1 kategori no terprediksi dengan salah.
+
+# 4. Evaluasi
+```{r}
+models_compares <- resamples(list(kNN = knnFit, Naive_Bayes = NBFit))
+
+# Ringkasan models performances
+summary(models_compares)
+```
+Dari perbandingan ini, kita bisa simpulkan bahwa berdasarkan nilai akurasi dan Kappa tertinggi, model Naive Bayes lebih baik dari k-NN dapat memprediksi kategori kelayakan penerimaan keringanan UKT kuliah.
+
